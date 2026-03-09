@@ -76,6 +76,7 @@ my %depth = (
 	shark		=> 2,
 	fish_start	=> 3,
 	fish_end	=> 20,
+	brb_text	=> 20,
 	seaweed		=> 21, 
 	castle		=> 22,
 
@@ -110,6 +111,7 @@ sub main {
 
 		add_environment($anim);
 		add_castle($anim);
+		add_brb_text($anim);
 		add_all_seaweed($anim);
 		add_all_fish($anim);
 		random_object(undef, $anim);
@@ -160,6 +162,39 @@ sub add_environment {
 			default_color	=> 'cyan',
 			depth		=> 22,
 			physical	=> 1,
+		);
+	}
+}
+
+sub add_brb_text {
+	my ($anim) = @_;
+	
+	# ASCII art for "Be Right Back"
+	my $brb_text = `figlet -c "Be Right Back!" -f /usr/share/figlet/fonts/slant.flf`;
+	
+	# Calculate center position
+	my @lines = split("\n", $brb_text);
+	# Remove empty first line from heredoc
+	shift @lines if @lines > 0 && $lines[0] =~ /^\s*$/;
+	
+	my $text_width = 0;
+	foreach my $line (@lines) {
+		my $len = length($line);
+		$text_width = $len if $len > $text_width;
+	}
+	my $text_height = scalar(@lines);
+	
+	# Only add if text fits on screen (with some margin)
+	if ($text_width + 4 <= $anim->width() && $text_height + 2 <= $anim->height()) {
+		my $x = int(($anim->width() - $text_width) / 2);
+		my $y = int(($anim->height() - $text_height) / 2);
+		
+		$anim->new_entity(
+			name		=> "brb_text",
+			shape		=> $brb_text,
+			position	=> [ $x, $y, $depth{'brb_text'} ],
+			default_color	=> 'YELLOW',
+			transparent	=> ' ',
 		);
 	}
 }
